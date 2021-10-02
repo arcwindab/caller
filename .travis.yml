@@ -1,0 +1,13 @@
+# Travis CI Configuration File
+
+# Tell Travis CI we're using PHP
+language: php
+php:
+  - '7.0'
+  - '8.0'
+  
+install:
+  - composer install
+
+script: 
+  - php test/test.php
