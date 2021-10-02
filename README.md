@@ -1,12 +1,12 @@
-# ArcWind Template
-[![Latest Stable Version](https://poser.pugx.org/arcwindab/template/v/stable.svg)](https://packagist.org/packages/arcwindab/template)
-[![Latest Unstable Version](https://poser.pugx.org/arcwindab/template/v/unstable.svg)](https://packagist.org/packages/arcwindab/template)
-[![Build Status](https://travis-ci.org/arcwindab/template.svg)](https://travis-ci.org/arcwindab/template)  
+# ArcWind Caller
+[![Latest Stable Version](https://poser.pugx.org/arcwindab/caller/v/stable.svg)](https://packagist.org/packages/arcwindab/caller)
+[![Latest Unstable Version](https://poser.pugx.org/arcwindab/caller/v/unstable.svg)](https://packagist.org/packages/arcwindab/caller)
+[![Build Status](https://travis-ci.org/arcwindab/caller.svg)](https://travis-ci.org/arcwindab/caller)  
 
-[![Total Downloads](https://poser.pugx.org/arcwindab/template/downloads)](https://packagist.org/packages/arcwindab/template)
-[![GitHub issues open](https://img.shields.io/github/issues/arcwindab/template.svg)](https://github.com/arcwindab/template/issues)
+[![Total Downloads](https://poser.pugx.org/arcwindab/caller/downloads)](https://packagist.org/packages/arcwindab/caller)
+[![GitHub issues open](https://img.shields.io/github/issues/arcwindab/caller.svg)](https://github.com/arcwindab/caller/issues)
 
-[![License](https://poser.pugx.org/arcwindab/template/license.svg)](https://packagist.org/packages/arcwindab/template)
+[![License](https://poser.pugx.org/arcwindab/caller/license.svg)](https://packagist.org/packages/arcwindab/caller)
 
 ## Disclaimer
 In the words of Abraham Lincoln:
@@ -16,11 +16,11 @@ My English, and technical terms in code, is not very good - I'm not a native spe
 Sorry for any confusion that may occur.
 
 ## Install
-ArcWind Template is available on [Packagist](https://packagist.org/packages/arcwindab/template) and installation via Composer is the recommended way to install ArcWind Template. Just add this line to your composer.json file:
+ArcWind Caller is available on [Packagist](https://packagist.org/packages/arcwindab/caller) and installation via Composer is the recommended way to install ArcWind Caller. Just add this line to your composer.json file:
 ```
-"arcwindab/template": "@dev"
+"arcwindab/caller": "@dev"
 ```
 or run
 ```
-composer require arcwindab/template
+composer require arcwindab/caller
 ```
