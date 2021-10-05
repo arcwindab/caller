@@ -24,3 +24,9 @@ or run
 ```
 composer require arcwindab/caller
 ```
+
+## Run
+```
+$caller = new arcwindab\caller();
+echo $caller->get('https://filesamples.com/samples/document/txt/sample1.txt');
+```
