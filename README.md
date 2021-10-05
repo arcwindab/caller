@@ -27,6 +27,17 @@ composer require arcwindab/caller
 
 ## Run
 ```
-$caller = new arcwindab\caller();
+<?php
+//Import PHPMailer classes into the global namespace
+//These must be at the top of your script, not inside a function
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+//Load Composer's autoloader
+require 'vendor/autoload.php';
+
+//Create an instance; passing my own user agent
+$caller = new arcwindab\caller('My custom UA');
 echo $caller->get('https://filesamples.com/samples/document/txt/sample1.txt');
 ```
