@@ -3,6 +3,7 @@
 # Tell Travis CI we're using PHP
 language: php
 php:
+  - '5.0'
   - '7.0'
   - '8.0'
   
