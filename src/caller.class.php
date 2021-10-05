@@ -205,6 +205,7 @@ namespace arcwindab {
             $ch = curl_init($url);
             if($this->config['post'] == true) {
                curl_setopt($ch, CURLOPT_POST, true);
+               curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
             }
             
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -214,7 +215,6 @@ namespace arcwindab {
             curl_setopt($ch, CURLOPT_FRESH_CONNECT,  true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
             curl_setopt($ch, CURLOPT_TIMEOUT, $this->config['timeout']);
             curl_setopt($ch, CURLOPT_USERAGENT, $this->get_user_agent());
