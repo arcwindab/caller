@@ -13,7 +13,7 @@ namespace arcwindab {
        *
        * @var string
        */
-      protected $version = '0.0.1';
+      protected $version = '0.1';
       
       /**
        * Configurable variables
