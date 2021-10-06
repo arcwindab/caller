@@ -18,3 +18,5 @@ install:
 
 script: 
   - php test/simple_get.php
+  - php test/methods_get.php
+  - php test/methods_post.php

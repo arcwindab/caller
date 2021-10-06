@@ -9,11 +9,18 @@
 namespace arcwindab {
    class caller {
       /**
+       * Url to debug script
+       *
+       * @var string
+       */
+      public $debug_url = 'https://app.arcwind.se/published/caller.test.php';
+      
+      /**
        * The version number
        *
        * @var string
        */
-      protected $version = '0.1';
+      protected $version = '0.3';
       
       /**
        * Configurable variables
@@ -40,7 +47,6 @@ namespace arcwindab {
          $this->set_useragent(((($ua !== null) && (trim($ua) != '')) ? $ua : (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'n/a')));
       }
       
-      
       /**
        * Set user agent
        *
@@ -56,8 +62,6 @@ namespace arcwindab {
          
          return false;
       }
-      
-      
       
       /**
        * Set timeout time
@@ -76,9 +80,6 @@ namespace arcwindab {
          return false;
       }
       
-      
-      
-      
       /**
        * Set if post request
        *
@@ -96,7 +97,6 @@ namespace arcwindab {
          return false;
       }
       
-      
       /**
        * Get version number
        *
@@ -105,7 +105,6 @@ namespace arcwindab {
       public function get_version() {
          return $this->version;
       }
-      
       
       /**
        * Get user agent
@@ -165,102 +164,113 @@ namespace arcwindab {
        *
        * @param string $url      Url to target
        * @param array $post      array with post variables
+       * @param string $method   Method to use when making call
        *
        * @return array('result' => string, 'info' => array)
        */
-      public function get_contents($url, $post = array()) {
-         $postdata = http_build_query($post);
-
-         $result = '';
-         $info = array();
-
-         
-         $info['domain']      = rtrim(substr($url, 0, strrpos( $url, '/')), '/').'/';
-         $info['http_code']   = '';
-         
-         
-         $opts = array(
-            'http' => array(
-               'timeout' => $this->config['timeout'],
-               'method'  => (($this->config['post'] == true) ? 'POST' : 'GET'),
-               'content' => (($this->config['post'] == true) ? $postdata : ''),
-               'header'  => '',
-               'ignore_errors' => true,
-               'header'  =>"Content-Type: application/x-www-form-urlencoded\r\n" .
-                           "Accept-language: en\r\n" .
-                           "User-Agent: ".$this->get_user_agent()."\r\n" 
-            ),
-
-            'ssl' => array(
-               'verify_peer' => false,
-               'verify_peer_name' => false,
-               'allow_self_signed' => true
-            )
-         );
-
-         $info['total_time']  = 0;
-         $start = microtime(true);
-         // CURL
-         if(function_exists('curl_exec')) {
-            $ch = curl_init($url);
-            if($this->config['post'] == true) {
-               curl_setopt($ch, CURLOPT_POST, true);
-               curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-            }
-            
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-
-            curl_setopt($ch, CURLOPT_FRESH_CONNECT,  true);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
-            curl_setopt($ch, CURLOPT_TIMEOUT, $this->config['timeout']);
-            curl_setopt($ch, CURLOPT_USERAGENT, $this->get_user_agent());
-            $result  = (curl_exec($ch));
-            $inf     = (curl_getinfo($ch));
-            curl_close($ch);
-
-            $info['http_code'] = $inf['http_code'];
-            if($result != '') {
-               $info['total_time']  = (microtime(true) - $start);
-               return array('result' => $result, 'info' => $info);
-            }
+      public function get_contents($url, $post = array(), $method = '') {
+         $method = trim(strtolower($method));
+         if(($method == 'curl') || ($method == 'file_get_contents') || ($method == 'fopen')) {} else {
+            $method = '';
          }
+         
+         // Remove all illegal characters from a url
+         $url = filter_var($url, FILTER_SANITIZE_URL);
+         if(filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED)) {
+            $postdata = http_build_query($post);
 
-         // FILE_GET_CONTENTS
-         if(function_exists('file_get_contents')) {
-            $result = file_get_contents($url, false, stream_context_create($opts));
-            $inf    = $http_response_header;
+            $result = '';
+            $info = array();
 
-            preg_match('{HTTP\/\S*\s(\d{3})}', $inf[0], $match);
-            $info['http_code'] = $match[1];
 
-            if($result != '') {
-               $info['total_time']  = (microtime(true) - $start);
-               return array('result' => $result, 'info' => $info);
+            $info['domain']      = rtrim(substr($url, 0, strrpos( $url, '/')), '/').'/';
+            $info['http_code']   = '';
+
+
+            $opts = array(
+               'http' => array(
+                  'timeout' => $this->config['timeout'],
+                  'method'  => (($this->config['post'] == true) ? 'POST' : 'GET'),
+                  'content' => (($this->config['post'] == true) ? $postdata : ''),
+                  'header'  => '',
+                  'ignore_errors' => true,
+                  'header'  =>"Content-Type: application/x-www-form-urlencoded\r\n" .
+                              "Accept-language: en\r\n" .
+                              "User-Agent: ".$this->get_user_agent()."\r\n" 
+               ),
+
+               'ssl' => array(
+                  'verify_peer' => false,
+                  'verify_peer_name' => false,
+                  'allow_self_signed' => true
+               )
+            );
+
+            $info['total_time']  = 0;
+            $start = microtime(true);
+            // CURL
+            if((function_exists('curl_exec')) && (($method == '') || ($method == 'curl'))) {
+               $ch = curl_init($url);
+               if($this->config['post'] == true) {
+                  curl_setopt($ch, CURLOPT_POST, true);
+                  curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+               }
+
+               curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+               curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+               curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+               curl_setopt($ch, CURLOPT_FRESH_CONNECT,  true);
+               curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+               curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+               curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
+               curl_setopt($ch, CURLOPT_TIMEOUT, $this->config['timeout']);
+               curl_setopt($ch, CURLOPT_USERAGENT, $this->get_user_agent());
+               $result  = (curl_exec($ch));
+               $inf     = (curl_getinfo($ch));
+               curl_close($ch);
+
+               $info['http_code'] = $inf['http_code'];
+               if($result != '') {
+                  $info['total_time']  = (microtime(true) - $start);
+                  return array('result' => $result, 'info' => $info, 'method' => $method);
+               }
             }
-         }
 
-         //FOPEN
-         if(function_exists('fopen') && function_exists('stream_get_contents')) {
-            $handle = fopen($url, 'r', false, stream_context_create($opts));
-            $result = stream_get_contents($handle);
-            $inf    = $http_response_header;
+            // FILE_GET_CONTENTS
+            if((function_exists('file_get_contents')) && (($method == '') || ($method == 'file_get_contents'))) {
+               $result = file_get_contents($url, false, stream_context_create($opts));
+               $inf    = $http_response_header;
 
-            preg_match('{HTTP\/\S*\s(\d{3})}', $inf[0], $match);
-            $info['http_code'] = $match[1];
-            
-            if($result != '') {
-               $info['total_time']  = (microtime(true) - $start);
-               return array('result' => $result, 'info' => $info);
+               preg_match('{HTTP\/\S*\s(\d{3})}', $inf[0], $match);
+               $info['http_code'] = $match[1];
+
+               if($result != '') {
+                  $info['total_time']  = (microtime(true) - $start);
+                  return array('result' => $result, 'info' => $info, 'method' => $method);
+               }
             }
-         }
 
+            //FOPEN
+            if((function_exists('fopen') && function_exists('stream_get_contents')) && (($method == '') || ($method == 'fopen'))) {
+               $handle = fopen($url, 'r', false, stream_context_create($opts));
+               $result = stream_get_contents($handle);
+               $inf    = $http_response_header;
+
+               preg_match('{HTTP\/\S*\s(\d{3})}', $inf[0], $match);
+               $info['http_code'] = $match[1];
+
+               if($result != '') {
+                  $info['total_time']  = (microtime(true) - $start);
+                  return array('result' => $result, 'info' => $info, 'method' => $method);
+               }
+            }
+         } else {
+            $info['error'] = 'Invalid url';
+         }
+         
          return array('result' => false, 'info' => $info);
       }
-      
       
       /**
        * Get content from url
@@ -272,6 +282,42 @@ namespace arcwindab {
        */
       public function get($url, $post = array()) {
          return $this->get_contents($url, $post)['result'];
+      }
+      
+      /**
+       * Get content from url using CURL
+       *
+       * @param string $url      Url to target
+       * @param array $post      array with post variables
+       *
+       * @return string
+       */
+      public function curl($url, $post = array()) {
+         return $this->get_contents($url, $post, 'curl');
+      }
+      
+      /**
+       * Get content from url using CURL
+       *
+       * @param string $url      Url to target
+       * @param array $post      array with post variables
+       *
+       * @return string
+       */
+      public function file_get_contents($url, $post = array()) {
+         return $this->get_contents($url, $post, 'file_get_contents');
+      }
+      
+      /**
+       * Get content from url using fopen
+       *
+       * @param string $url      Url to target
+       * @param array $post      array with post variables
+       *
+       * @return string
+       */
+      public function fopen($url, $post = array()) {
+         return $this->get_contents($url, $post, 'fopen');
       }
    }
 }
