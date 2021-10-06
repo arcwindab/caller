@@ -1,4 +1,4 @@
-<?php include_once '../src/caller.class.php';
+<?php include_once __DIR__.'/../src/caller.class.php';
 
 /** Initiate caller class
  */
