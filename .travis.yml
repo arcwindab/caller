@@ -2,13 +2,20 @@
 
 # Tell Travis CI we're using PHP
 language: php
+
 php:
   - '5.6.33'
+  - '5.6.40'
   - '7.0'
+  - '7.1.33'
+  - '7.2.34'
+  - '7.3.31'
+  - '7.4.24'
   - '8.0'
+  - '8.0.11'
   
 install:
   - composer install
 
 script: 
-  - php test/simple_get.php
+  - php test/
