@@ -50,7 +50,7 @@ namespace arcwindab {
        */
       public function set_useragent($string) {
          if(trim($string) != '') {            
-            $this->config['user_agent'] = trim($string);
+            $this->config['user_agent'] = trim($string).' (PHP '.phpversion().')';
             return true;
          }
          
