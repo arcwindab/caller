@@ -176,7 +176,7 @@ namespace arcwindab {
          
          // Remove all illegal characters from a url
          $url = filter_var($url, FILTER_SANITIZE_URL);
-         if(filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED)) {
+         if(filter_var($url, FILTER_VALIDATE_URL)) {
             $postdata = http_build_query($post);
 
             $result = '';
