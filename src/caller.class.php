@@ -132,21 +132,21 @@ namespace arcwindab {
          $start = microtime(true);
          
          if(function_exists('curl_exec')) {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
+            $ch = curl_init($url);
+            
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
-            curl_setopt($ch, CURLOPT_NOBODY, true);
+            curl_setopt($ch, CURLOPT_FRESH_CONNECT,  true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HEADER, true);
-
-
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
+            curl_setopt($ch, CURLOPT_TIMEOUT, $this->config['timeout']);
+            curl_setopt($ch, CURLOPT_USERAGENT, $this->get_user_agent());
             $result  = (curl_exec($ch));
             $inf     = (curl_getinfo($ch));
             curl_close($ch);
-
 
             $info['http_code'] = $inf['http_code'];
             if($result != '') {
