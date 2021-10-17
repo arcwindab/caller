@@ -34,10 +34,11 @@ namespace arcwindab {
        * Sets up
        *
        * @param string $ua      Useragent
+       * @param string $ip      IP
        *
        * @return 
        */
-      public function __construct($ua = null) {
+      public function __construct($ua = null, $ip = null) {
          foreach($this->config_fields as $cf) {
             $this->config[$cf] = '';
          }
@@ -45,6 +46,7 @@ namespace arcwindab {
          $this->set_timeout(30);
          $this->set_post(false);
          $this->set_useragent(((($ua !== null) && (trim($ua) != '')) ? $ua : (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'n/a')));
+         $this->set_ip(((($ip !== null) && (trim($ip) != '')) ? $ip : (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'n/a')));
       }
       
       /**
@@ -58,6 +60,24 @@ namespace arcwindab {
          if(trim($string) != '') {            
             $this->config['user_agent'] = trim($string).' (PHP '.phpversion().')';
             return true;
+         }
+         
+         return false;
+      }
+      
+      /**
+       * Set ip adress
+       *
+       * @param string $string   IP
+       *
+       * @return bool
+       */
+      public function set_ip($string) {
+         if(trim($string) != '') {            
+            if((filter_var($string, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) || (filter_var($string, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))) {
+                $this->config['ip'] = trim($string);
+                return true;
+            }
          }
          
          return false;
@@ -118,6 +138,34 @@ namespace arcwindab {
          return '';
       }
       
+      /**
+       * Get ip
+       *
+       * @return string
+       */
+      public function get_ip() {
+         if((isset($this->config['ip'])) && ($this->config['ip'] != '')) {
+            return $this->config['ip'];
+         }
+         return '';
+      }
+      
+      
+      /**
+       * Get headers to send to server
+       *
+       * @return array
+       */
+      public function get_header_array() {
+         return array(
+            'Content-Type: application/x-www-form-urlencoded', 
+            'Accept-language: en', 
+            'User-Agent: '.$this->get_user_agent(), 
+            'Remote_Addr: '.$this->get_ip(),
+            'HTTP_X_FORWARDED_FOR: '.$this->get_ip()
+         );
+      }
+      
       
       /**
        * Get some return headers from url
@@ -144,6 +192,7 @@ namespace arcwindab {
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
             curl_setopt($ch, CURLOPT_TIMEOUT, $this->config['timeout']);
             curl_setopt($ch, CURLOPT_USERAGENT, $this->get_user_agent());
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $this->get_header_array());
             $result  = (curl_exec($ch));
             $inf     = (curl_getinfo($ch));
             curl_close($ch);
@@ -185,18 +234,14 @@ namespace arcwindab {
 
             $info['domain']      = rtrim(substr($url, 0, strrpos( $url, '/')), '/').'/';
             $info['http_code']   = '';
-
-
+ 
             $opts = array(
                'http' => array(
                   'timeout' => $this->config['timeout'],
                   'method'  => (($this->config['post'] == true) ? 'POST' : 'GET'),
                   'content' => (($this->config['post'] == true) ? $postdata : ''),
-                  'header'  => '',
                   'ignore_errors' => true,
-                  'header'  =>"Content-Type: application/x-www-form-urlencoded\r\n" .
-                              "Accept-language: en\r\n" .
-                              "User-Agent: ".$this->get_user_agent()."\r\n" 
+                  'header'  => implode("\n\r", $this->get_header_array())
                ),
 
                'ssl' => array(
@@ -226,6 +271,7 @@ namespace arcwindab {
                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
                curl_setopt($ch, CURLOPT_TIMEOUT, $this->config['timeout']);
                curl_setopt($ch, CURLOPT_USERAGENT, $this->get_user_agent());
+               curl_setopt($ch, CURLOPT_HTTPHEADER, $this->get_header_array());
                $result  = (curl_exec($ch));
                $inf     = (curl_getinfo($ch));
                curl_close($ch);
